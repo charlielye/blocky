@@ -4,6 +4,7 @@ import { assert } from 'chai';
 let { describe, it } = window;
 
 describe('Block', () => {
+
     it('should be created with correctly', () => {
         let testCoords = [
             [1, 2],
