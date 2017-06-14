@@ -22,6 +22,7 @@ export class BlockGrid {
 
       this.grid.push(col);
     }
+  }
 
   render (el = document.querySelector('#gridEl')) {
     for (let x = 0; x < MAX_X; x++) {
@@ -59,10 +60,10 @@ export class BlockGrid {
       return;
     }
     this.grid[x][y] = null;
-    this.nullConnected(x+1, y, colour);
-    this.nullConnected(x-1, y, colour);
-    this.nullConnected(x, y+1, colour);
-    this.nullConnected(x, y-1, colour);
+    this.nullifyRegion(x+1, y, colour);
+    this.nullifyRegion(x-1, y, colour);
+    this.nullifyRegion(x, y+1, colour);
+    this.nullifyRegion(x, y-1, colour);
   }
 
   collapseColumn(col) {

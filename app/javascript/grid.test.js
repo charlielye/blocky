@@ -1,7 +1,5 @@
-import { Block, BlockGrid, COLOURS, MAX_X, MAX_Y } from '../app/javascript/grid';
+import { Block, BlockGrid, COLOURS, MAX_X, MAX_Y } from './grid';
 import { assert } from 'chai';
-
-let { describe, it } = window;
 
 describe('Block', () => {
     it('should be created with correctly', () => {
@@ -57,17 +55,23 @@ describe('BlockGrid', () => {
         }
     });
 
-    it('collapse null blocks', () => {
-        grid.collapseNullBlocks();
+    it('collapse column', () => {
+      let col = [
+        new Block(0, 0, 'red'),
+        new Block(0, 1, 'green'),
+        null,
+        null,
+        new Block(0, 4, 'blue'),
+      ];
 
-        for (let x = 0; x < MAX_X; x++) {
-            for (let y = 0; y < MAX_Y; y++) {
-                if (x == 4 || y >= MAX_Y-2) {
-                    assert.isUndefined(grid.grid[x][y]);
-                } else {
-                    assert.isNotNull(grid.grid[x][y]);
-                }
-            }
-        }
+      let expected = [
+        new Block(0, 0, 'red'),
+        new Block(0, 1, 'green'),
+        new Block(0, 2, 'blue'),
+      ];
+
+      let newCol = grid.collapseColumn(col);
+
+      assert.deepEqual(newCol, expected);
     });
 });
