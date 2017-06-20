@@ -46,10 +46,12 @@ export class BlockGrid {
     return this;
   }
 
-  updateRender(origGrid, newGrid) {
-    origGrid.map((col,x) => col.map((b,y) =>
-      document.querySelector(`#block_${x}x${y}`).style.background = newGrid[x][y] ? newGrid[x][y].colour : 'gray'
-    ));
+  updateRender(newGrid) {
+    for (let x = 0; x < MAX_X; x++) {
+      for (let y = 0; y < MAX_Y; y++) {
+        document.querySelector(`#block_${x}x${y}`).style.background = newGrid[x][y] ? newGrid[x][y].colour : 'gray';
+      }
+    }
   }
 
   nullifyRegion(x, y, colour) {
@@ -76,10 +78,12 @@ export class BlockGrid {
     if (!this.grid[x][y]) {
       return;
     }
-    let origGrid = this.grid.map(c=>c.map(b=>new Block(b.x, b.y, b.colour)));
     this.nullifyRegion(x, y, this.grid[x][y].colour);
-    this.grid = this.grid.map(this.collapseColumn);
-    this.updateRender(origGrid, this.grid);
+    this.updateRender(this.grid);
+    setTimeout(() => {
+      this.grid = this.grid.map(this.collapseColumn);
+      this.updateRender(this.grid);
+    }, 250);
   }
 }
 
