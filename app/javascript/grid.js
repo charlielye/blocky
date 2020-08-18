@@ -1,12 +1,12 @@
 export const COLOURS = ['red', 'green', 'blue', 'yellow'];
-const MAX_X = 10;
-const MAX_Y = 10;
+export const MAX_X = 10;
+export const MAX_Y = 10;
 
 export class Block {
-  constructor(x, y) {
+  constructor (x, y, colour) {
     this.x = x;
     this.y = y;
-    this.colour = COLOURS[Math.floor(Math.random() * COLOURS.length)];
+    this.colour = colour || COLOURS[Math.floor(Math.random() * COLOURS.length)];
   }
 }
 
@@ -22,27 +22,23 @@ export class BlockGrid {
 
       this.grid.push(col);
     }
-
-    return this;
   }
 
-  render(el = document.querySelector('#gridEl')) {
+  render (el = document.querySelector('#gridEl')) {
     for (let x = 0; x < MAX_X; x++) {
-      let id = 'col_' + x;
       let colEl = document.createElement('div');
       colEl.className = 'col';
-      colEl.id = id;
+      colEl.id = 'col_' + x;
       el.appendChild(colEl);
 
       for (let y = MAX_Y - 1; y >= 0; y--) {
-        let block = this.grid[x][y],
-          id = `block_${x}x${y}`,
-          blockEl = document.createElement('div');
+        let id = `block_${x}x${y}`;
+        let blockEl = document.createElement('div');
 
         blockEl.id = id;
         blockEl.className = 'block';
-        blockEl.style.background = block.colour;
-        blockEl.addEventListener('click', evt => this.blockClicked(evt, block));
+        blockEl.style.background = this.grid[x][y].colour;
+        blockEl.addEventListener('click', (evt) => this.blockClicked(evt, x, y));
         colEl.appendChild(blockEl);
       }
     }
@@ -50,8 +46,44 @@ export class BlockGrid {
     return this;
   }
 
-  blockClicked(e, block) {
-    console.log(e, block);
+  updateRender(newGrid) {
+    for (let x = 0; x < MAX_X; x++) {
+      for (let y = 0; y < MAX_Y; y++) {
+        document.querySelector(`#block_${x}x${y}`).style.background = newGrid[x][y] ? newGrid[x][y].colour : 'gray';
+      }
+    }
+  }
+
+  nullifyRegion(x, y, colour) {
+    if (x < 0 || x > MAX_X-1 || y < 0 || y > MAX_Y-1) {
+      return;
+    }
+    if (!this.grid[x][y] || this.grid[x][y].colour != colour) {
+      return;
+    }
+    this.grid[x][y] = null;
+    this.nullifyRegion(x+1, y, colour);
+    this.nullifyRegion(x-1, y, colour);
+    this.nullifyRegion(x, y+1, colour);
+    this.nullifyRegion(x, y-1, colour);
+  }
+
+  collapseColumn(col) {
+    let newCol = col.filter(e => e);
+    newCol.forEach((b,i) => b.y = i);
+    return newCol;
+  }
+
+  blockClicked (e, x, y) {
+    if (!this.grid[x][y]) {
+      return;
+    }
+    this.nullifyRegion(x, y, this.grid[x][y].colour);
+    this.updateRender(this.grid);
+    setTimeout(() => {
+      this.grid = this.grid.map(this.collapseColumn);
+      this.updateRender(this.grid);
+    }, 250);
   }
 }
 
